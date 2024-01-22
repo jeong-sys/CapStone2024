@@ -1,10 +1,10 @@
 {{template "header.html"}}
 <h1 class="title">{{.title}}</h1>
 <form method="post">
-    <label>입력:</label>
-    <input type="text" name="input">
+    <label> 에셋명 :</label>
+    <input type="text" name="asset_name">
+    <p><input type="file" id="upload_file" name="upload_file"/></p>
     <input type="submit" title="버튼">
 </form>
-<p></p>
 <a href="{{.url}}">info로 이동</a>
 {{template "footer.html"}}
