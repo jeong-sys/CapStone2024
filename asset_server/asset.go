@@ -1,13 +1,35 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"net/http"
+	"github.com/gin-gonic/gin"
+	// "go.mongodb.org/mongo-driver/mongo"
+	// "go.mongodb.org/mongo-driver/mongo/options"
+)
 
-func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
+func setRouter(router *gin.Engine) {
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "send.html", gin.H{
+			"title": "메인페이지",
+			"url":   "/info",
 		})
 	})
-	r.Run()
+
+	router.POST("/", func(c *gin.Context) {
+		fmt.Println(c.PostForm("input"))
+	})
+
+	router.GET("/info", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "info.html", gin.H{
+			"content": "내용",
+		})
+	})
+}
+
+func main() {
+	router := gin.Default()
+	router.LoadHTMLGlob("html/*.html")
+	setRouter(router)
+	_ = router.Run(":8080")
 }
