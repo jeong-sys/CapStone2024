@@ -1,10 +1,44 @@
 {{template "header.html"}}
 <h1 class="title">{{.title}}</h1>
 <form method="post">
-    <label> 에셋명 :</label>
-    <input type="text" name="asset_name">
-    <p><input type="file" id="upload_file" name="upload_file"/></p>
-    <input type="submit" title="버튼">
-</form>
+    <label>Asset Name:</label><br>
+        <input type="text" name="name"><br><br>
+
+        <label>Uploader Name:</label><br>
+        <input type="text" name="uploader"><br><br>
+
+        <label>Price:</label><br>
+        <input type="text" name="price"><br><br>
+
+        <label>Category:</label><br>
+        <input type="text" name="category"><br><br>
+
+        <label>Subcategory:</label><br>
+        <input type="text" name="subcategory"><br><br>
+
+        <label>Thumbnail:</label><br>
+        <input type="file" name="thumbnail"><br><br>
+
+        <label>File:</label><br>
+        <input type="file" name="file"><br><br>
+
+        <input type="submit" value="Upload">
+</form><br>
+
 <a href="{{.url}}">info로 이동</a>
+
+<script>
+    const formEl = document.querySelector('form')
+  
+    formEl.addEventListener('submit', evt => {
+      evt.preventDefault()
+      const formData = new FormData(evt.target)
+      
+      for(var pair of formData.entries()) {
+        console.log(pair[0]+ '='+ pair[1]);
+      }
+    })
+</script>
+
 {{template "footer.html"}}
+
