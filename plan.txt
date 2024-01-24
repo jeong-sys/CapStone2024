@@ -1,0 +1,26 @@
+1. 프론트에서 정보 보냄
+2. DB에 정보 저장
+{
+    name : type(string) = 오브젝트 이름
+    category1 : type(string or num) = 대분류
+    category2 : type(string or num) = 소분류
+    thumbnail : type(image) = 썸네일 이미지
+    modelfile : type(3D object) = 3D오브젝트 파일
+    uploaddate : type(datetime) = 오브젝트 업로드 날짜
+    downloadcount : type(num) = 사람들이 오브젝트 받아온 횟수
+    price : type(num) = 가격
+}
+
+3. 추후에 사용자가 저장된 정보 요청
+--> 대분류, 소분류로 이미지 찾을 수 있음
+
+4. 데이터 반환(modelfile 데이터 반환 예정)
+
+================================================================
+(웹에서의 테스트 예시)
+
+1. 웹에서 정보 전달
+2. DB에 정보 저장(위의 조건대로)
+3. 웹에서 저장된 정보 리스트 확인 가능
+    --> 썸네일 사진 (버튼)누르면 자세한 정보 확인 가능 
+    --> 썸네일 사진 (버튼)클릭시, 3D오브젝트 파일 확인 가능
