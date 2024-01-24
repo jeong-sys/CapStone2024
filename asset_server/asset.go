@@ -12,13 +12,20 @@ import (
 func setRouter(router *gin.Engine) { // router
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "send.html", gin.H{
-			"title": "업로드 페이지", // 제출시, 빈화면 뜸 (제출되었습니다 표시 뜨게 하기)
+			"title": "업로드 페이지", // 제출시, 빈화면 뜸 (제출되었습니다 표시 뜨게 하기)  -- 1) json으로 terminal에 띄우기
 			"url":   "/info",
 		})
 	})
 
 	router.POST("/", func(c *gin.Context) {
-		fmt.Println(c.PostForm("input")) // 사용자 업로드(DB저장 필요)
+		fmt.Println(c.PostForm("name")) // 사용자 업로드(DB저장 필요) ---> 2) 띄운 정보들 mongo 저장
+		fmt.Println(c.PostForm("uploader"))
+		fmt.Println(c.PostForm("price"))
+		fmt.Println(c.PostForm("category"))
+		fmt.Println(c.PostForm("subcategory"))
+		fmt.Println(c.PostForm("thumbnail"))
+		// fmt.Println(c.PostForm("file"))
+
 	})
 
 	router.GET("/info", func(c *gin.Context) {
