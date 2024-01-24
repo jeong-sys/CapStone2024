@@ -33,7 +33,7 @@
                 // 썸네일 이미지 추가
                 if (asset.thumbnail) {
                     const img = document.createElement('img');
-                    img.src = asset.thumbnail;
+                    img.src = '/' + asset.thumbnail; // MongoDB에 저장된 경로를 직접 사용
                     img.alt = 'Thumbnail';
                     assetDiv.appendChild(img);
                 }
@@ -41,7 +41,7 @@
                 // 파일 링크 추가
                 if (asset.file) {
                     const fileLink = document.createElement('a');
-                    fileLink.href = asset.file;
+                    fileLink.href = '/' + asset.file; // MongoDB에 저장된 경로를 직접 사용
                     fileLink.textContent = 'Download File';
                     assetDiv.appendChild(fileLink);
                 }
