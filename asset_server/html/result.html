@@ -1,0 +1,14 @@
+{{template "header.html"}}
+<body>
+    <!-- 동적으로 썸네일 이미지 경로를 불러옵니다 -->
+    <img src="{{.Asset.ThumbnailPath}}">
+    <div>
+        <p>Name: {{.Asset.Name}}</p>
+        <p>Uploader: {{.Asset.Uploader}}</p>
+        <p>Price: {{.Asset.Price}}</p>
+        <p>Category: {{.Asset.Category}}</p>
+        <p>Subcategory: {{.Asset.Subcategory}}</p>
+        <p><a href="{{.Asset.FilePath}}" download>Download File</a></p>
+    </div>
+</body>
+{{template "footer.html"}}

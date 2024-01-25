@@ -1,96 +1,92 @@
 package main
 
 import (
-	// "context"
-	// "context"
-	"fmt"
-	// "log"
-
-	// "io/ioutil"
+	"context"
+	"log"
 	"net/http"
-
-	// "github.com/mholt/binding"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	// "go.mongodb.org/mongo-driver/mongo"
-	// "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive" 
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
 
 type Asset struct {
-	ID          bson.ObjectId `bson:"_id, omitempty"`
-	Name        string        `bson:"name" json:"name"`
-	Uploader    string        `bson:"uploader" json:"uploader"`
-	Price       int           `bson:"price" json:"price"`
-	Category    string        `bson:"category" json:"category"`
-	SubCategory string        `bson:"subcategory" json:"subcategory"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name          string             `form:"name"`
+	Uploader      string             `form:"uploader"`
+	Price         int                `form:"price"`
+	Category      string             `form:"category"`
+	Subcategory   string             `form:"subcategory"`
+	ThumbnailPath string             `json:"thumbnail_path"`
+	FilePath      string             `json:"file_path"`
 }
-
-
-func setRouter(router *gin.Engine) { // router
-
-	//router 핸들러 정의
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "send.html", gin.H{
-			"title": "업로드 페이지", // 제출시, 빈화면 뜸 (제출되었습니다 표시 뜨게 하기)  -- 1) 입력정보 terminal에 띄우기 (o)
-			"url":   "/info",
-		})
-	})
-
-	router.POST("/", func(c *gin.Context) {
-
-		// 출력
-		jsonData, err := c.GetRawData()
-		if err != nil {
-			fmt.Println("Error reading JSON data:", err)
-		}
-
-		fmt.Println("Received JSON data:", string(jsonData))
-
-
-		// fmt.Println(c.PostForm("name")) // 사용자 업로드(DB저장 필요) ---> 2) 띄운 정보들 mongo 저장
-		// fmt.Println(c.PostForm("uploader"))
-		// fmt.Println(c.PostForm("price"))
-		// fmt.Println(c.PostForm("category"))
-		// fmt.Println(c.PostForm("subcategory"))
-
-		// fmt.Println(c.PostForm("thumbnail")) --> 4) 파일 DB 업로드
-		// fmt.Println(c.PostForm("file"))
-
-	})
-
-	router.GET("/info", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "info.html", gin.H{
-			"content": "내용", // '/'에서 받아온 내용 표시(DB저장 받아오기 필요)
-		})
-	})
-}
-
-// func APISearch(c *gin.Context){
-
-// 	c.Header("Content-Type", "application/json charset=utf-8")
-// 	resp, err := http.Get("http://localhost:8080/")
-
-// 	if err != nil{
-// 		panic(err)
-// 	}
-
-// 	defer resp.Body.Close()
-
-// 	respBody, err := ioutil.ReadAll(resp.Body)
-// 	if err == nil{
-// 		str := string(respBody)
-// 		println(str)
-// 		fmt.Printf("%S\n",str)
-// 	}
-// }
-
-//func API
-//json으로 변경된 것(js 코드 사용) 가져와서 db에 넣기
 
 func main() {
-	router := gin.Default()            // gin으로 router만들기
-	router.LoadHTMLGlob("html/*.html") // 템플릿 불러옴
-	setRouter(router)
-	_ = router.Run(":8080")
+	// MongoDB 연결 설정
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 데이터베이스와 컬렉션 선택
+	collection := client.Database("asset_server").Collection("asset")
+
+	// Gin 라우터 초기화
+	r := gin.Default()
+
+	r.LoadHTMLGlob("html/*")
+	r.Static("/save_info", "./save_info")
+
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "send.html", gin.H{"title": "Asset Upload"})
+	})
+
+	r.POST("/", func(c *gin.Context) {
+
+		var asset Asset
+
+		thumbnail, _ := c.FormFile("thumbnail")
+		file, _ := c.FormFile("file")
+
+		c.Bind(&asset)
+
+		// thumbnailFile, file 경로로 저장
+		thumbnailFilename := filepath.Base(thumbnail.Filename)
+		fileFilename := filepath.Base(file.Filename)
+		thumbnailPath := filepath.Join("./save_info/thumbnail_dir", thumbnailFilename)
+		filePath := filepath.Join("./save_info/file_dir", fileFilename)
+
+		c.SaveUploadedFile(thumbnail, thumbnailPath)
+		c.SaveUploadedFile(file, filePath)
+
+		asset.ThumbnailPath = "/save_info/thumbnail_dir/" + thumbnailFilename
+		asset.FilePath = "/save_info/file_dir/" + fileFilename
+
+		collection.InsertOne(context.TODO(), asset)
+		c.Redirect(http.StatusMovedPermanently, "/result/"+asset.Name)
+	})
+
+	r.GET("/result/:name", func(c *gin.Context) {
+		name := c.Param("name")
+
+		// MongoDB에서 name 필드를 기준으로 데이터 조회
+		var asset Asset
+		err := collection.FindOne(context.TODO(), bson.M{"name": name}).Decode(&asset)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Asset not found"})
+			return
+		}
+
+		// 썸네일과 정보 표시
+		c.HTML(http.StatusOK, "result.html", gin.H{
+			"Thumbnail": asset.ThumbnailPath,
+			"Asset":     asset,
+		})
+	})
+
+	r.Run(":8080")
 }

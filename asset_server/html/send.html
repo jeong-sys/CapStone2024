@@ -1,8 +1,9 @@
 {{template "header.html"}}
 
 <h1 class="title">{{.title}}</h1>
+
 <body>
-  <form method="post">
+  <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
     <label>Asset Name:</label><br>
     <input type="text" id="name" name="name"><br>
 
@@ -18,36 +19,14 @@
     <label>Subcategory:</label><br>
     <input type="text" id="subcategory" name="subcategory"><br>
 
-    <!-- <label>Thumbnail:</label><br>
+    <label>Thumbnail:</label><br>
     <input type="file" id="thumbnail" name="thumbnail"><br>
 
     <label>File:</label><br>
-    <input type="file" id="file" name="file"><br> -->
+    <input type="file" id="file" name="file"><br>
 
-    <input type="submit" id="button" onclick="viewApiBtnClick()" title="Upload">
+    <input type="submit" id="button" title="Upload">
   </form>
 </body>
-
-<script>
-  function sendToGo(){
-
-    $.ajax({
-      url:"/api",
-      type:"POST",
-      contentType:"application/json; charset=utf-8",
-      //data: JSON.stringify(jsonData), // JSON 데이터로 직렬화
-      success: function(resData){
-        $("#name").val(resData.name)
-        $("#uploader").val(resData.uploader)
-        $("#price").val(resData.price)
-        $("#category").val(resData.category)
-        $("#subcategory").val(resData.subcategory)
-      },
-      error: function(){
-        alert("처리 중 오류가 발생했습니다")
-      }
-    })
-  }
-</script>
 
 {{template "footer.html"}}
