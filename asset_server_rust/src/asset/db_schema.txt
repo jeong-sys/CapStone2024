@@ -15,24 +15,18 @@ CREATE TABLE Images (
     image BLOB
 );
 
-CREATE TABLE Thumbnails (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    thumbnail BLOB
-);
-
 CREATE TABLE Assets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     category_id INT,
-    thumbnail_id INT,
     image_id INT,
     file_id INT,
+    thumbnail BLOB,
     upload_date DATETIME,
     download_count INT DEFAULT 0,
     price DECIMAL(10, 2),
     is_disable BOOLEAN,
     FOREIGN KEY (category_id) REFERENCES Categories(id),
-    FOREIGN KEY (thumbnail_id) REFERENCES Thumbnails(id),
     FOREIGN KEY (image_id) REFERENCES Images(id),
     FOREIGN KEY (file_id) REFERENCES Files(id)
 );

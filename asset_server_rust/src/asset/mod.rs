@@ -9,7 +9,7 @@ use futures::future::join_all;
 pub async fn handle_upload(mut stream: TcpStream, pool: Pool) -> Result<(), Box<dyn std::error::Error>> {
  
     // 데이터베이스에 에셋 정보 업로드
-    upload_asset(&pool, name, category_id, file_data, image_data, price, is_disable).await?;
+    upload_asset(&pool, name, category_id, file, image, price, is_disable).await?;
 
     // 업로드 성공 메시지를 클라이언트에게 전송
     let response = "Asset uploaded successfully";
@@ -17,6 +17,9 @@ pub async fn handle_upload(mut stream: TcpStream, pool: Pool) -> Result<(), Box<
 
     Ok(())
 }
+
+
+
 
 // 카테고리 조회 함수
 async fn handle_category_selection(pool: &Pool, category_id: i32) -> Result<Vec<(i32, String, Option<Vec<u8>>)>, AppError> {
@@ -30,6 +33,9 @@ async fn handle_category_selection(pool: &Pool, category_id: i32) -> Result<Vec<
     
     Ok(assets_with_thumbnails)
 }
+
+
+
 
 // 에셋 정보 조회 함수
 async fn handle_asset_info_request(pool: &Pool, asset_id: i32) -> Result<AssetDetails, Box<dyn std::error::Error>> {
