@@ -5,6 +5,7 @@ pub enum AppError {
     DbError(mysql_async::Error),
     NotFound(String),
     IoError(std::io::Error),
+    ImageError(image::ImageError),
 }
 
 impl fmt::Display for AppError {
@@ -26,6 +27,12 @@ impl From<mysql_async::Error> for AppError {
 impl From<std::io::Error> for AppError {
     fn from(err: std::io::Error) -> AppError {
         AppError::IoError(err)
+    }
+}
+
+impl From<image::ImageError> for AppError {
+    fn from(err: image::ImageError) -> Self {
+        AppError::ImageError(err)
     }
 }
 
