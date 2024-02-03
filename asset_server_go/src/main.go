@@ -6,8 +6,8 @@ import (
 	"log"
 	"module/asset"
 	"net"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 func main() {
@@ -31,10 +31,6 @@ func main() {
 		}
 		defer conn.Close() // 메인 프로세스 종료시 소켓 종료
 		go ConnHandler(conn)
-
-		// 다른 함수 호출 --> tcp 정보에 따른 함수 호출 // 함수로 정보 보내기
-		// message := asset.AssetData("Heo")
-		// fmt.Println(message)
 	}
 }
 
