@@ -1,4 +1,4 @@
-module module/db
+module capstone.com/module/db
 
 go 1.21.6
 

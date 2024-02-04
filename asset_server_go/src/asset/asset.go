@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"module/db"
-	_ "github.com/go-sql-driver/mysql"
+
+	"capstone.com/module/db"
 )
 
 // assetDB
@@ -38,8 +38,7 @@ func AssetData(name string, data []byte) {
 
 	// ===================  DB업로드(table 연결)  =======================================
 
-	// table명에 따라 data 받아오는 값 달라짐
-	// data를 db에 저장
+	// table명에 따라 data 받아오는 값 달라짐 // data를 알맞는 table에 저장
 	switch trim_name {
 
 	// upload table 연결
@@ -49,34 +48,43 @@ func AssetData(name string, data []byte) {
 
 		// 내용 저장(test : string데이터만 전달하고 반환)
 		// 입력 data : asset upload id[num] name[string] category[num] thum[images] (date:datetime) (count:num) price[num] is[T]
-		id, _ := strconv.Atoi(split_data_db[2]) // 우선 table저장은 자동 증가로 설정
-		fmt.Printf("id: %d, type: %s\n", id, reflect.TypeOf(id))
 
-		name := split_data_db[3]
+		//id, _ := strconv.Atoi(split_data_db[2]) // 우선 table저장은 자동 증가로 설정
+		//fmt.Printf("id: %d, type: %s\n", id, reflect.TypeOf(id))
+
+		name := split_data_db[2]
 		fmt.Printf("name: %s\n", name)
 
-		category_id, _ := strconv.Atoi(split_data_db[4])
-		fmt.Printf("id: %d, type: %s\n", category_id, reflect.TypeOf(id))
+		category_id, _ := strconv.Atoi(split_data_db[3])
+		fmt.Printf("id: %d, type: %s\n", category_id, reflect.TypeOf(category_id))
 
-		thumbnail := split_data_db[5]
+		thumbnail := split_data_db[4]
 		fmt.Printf("thum_test: %s\n", thumbnail)
 
-		//upload_data(현재 시각)
+		price, _ := strconv.Atoi(split_data_db[5])
+		fmt.Printf("price: %d, type: %s\n", price, reflect.TypeOf(price))
 
-		//download_count(default 0)
-
-		price, _ := strconv.Atoi(split_data_db[6])
-		fmt.Printf("price: %d, type: %s\n", price, reflect.TypeOf(id))
-
-		isbool := split_data_db[7]
+		isbool := split_data_db[6]
 		fmt.Printf("thum_test: %s\n", isbool)
 
-		query := "INSERT INTO assets (id, name, category_id, thumbnail, upload_date, download_count, price, is_disable) VALUES (?, ?, ?, ?, NOW(), 0, ?, ?)"
-		_, err := db.Exec(query, id, name, category_id, thumbnail, price, isbool)
+		query := "INSERT INTO assets (name, category_id, thumbnail, upload_date, download_count, price, is_disable) VALUES (?, ?, ?, NOW(), 0, ?, ?)"
+		_, err := db.Exec(query, name, category_id, thumbnail, price, isbool)
 		if err != nil {
 			log.Fatalf("Failed to insert data: %v", err)
 		}
-		fmt.Println("Success table")
+
+		// client에게 id와 성공 메시지 반환
+		var asset_id int = 0
+		err = db.QueryRow("SELECT LAST_INSERT_ID();").Scan(&asset_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(asset_id)
+		message := "Success upload table"
+		fmt.Println(message)
+
+		// tcp.Receive_Id(asset_id)
 
 	// file table 연결
 	case "file":
