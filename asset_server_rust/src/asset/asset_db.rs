@@ -1,29 +1,24 @@
 use mysql_async::{Pool, Row, params};
 use mysql_async::prelude::*;
 use std::time::SystemTime;
-use crate::error::{AppError, Result};
 use image::{DynamicImage, ImageOutputFormat::Png, imageops::FilterType};
-use tokio::task;
 
-async fn create_thumbnail(image_data: Vec<u8>) -> Result<Vec<u8>, AppError> {
-    let thumbnail_data = task::spawn_blocking(move || {
-        image::load_from_memory(&image_data)
-            .map_err(AppError::from)
-            .and_then(|img| {
-                img.resize(128, 128, FilterType::Nearest)
-                    .write_to(&mut Vec::new(), image::ImageOutputFormat::Png)
-                    .map_err(AppError::from)
-            })
-    })
-    .await?
-    .map_err(|_| AppError::IoError(std::io::Error::new(std::io::ErrorKind::Other, "Failed to process the image")))?;
 
-    Ok(thumbnail_data)
+async fn create_thumbnail(image_data: Vec<u8>) -> Vec<u8> {
+    let thumbnail_data = {
+        let img = image::load_from_memory(&image_data).unwrap_or_else(|_| DynamicImage::new_rgb8(128, 128));
+        let resized_img = img.resize(128, 128, FilterType::Nearest);
+        let mut thumbnail = Vec::new();
+        resized_img.write_to(&mut thumbnail, image::ImageOutputFormat::Png).unwrap_or_default();
+        thumbnail
+    };
+
+    thumbnail_data
 }
 
 // 에셋 업로드
-pub async fn upload_asset(pool: &Pool, name: &str, category_id: i32, file: Vec<u8>, image: Vec<u8>, price: f64, is_disable: bool) -> Result<()> {
-    let mut conn = pool.get_conn().await.map_err(AppError::DbError)?;
+pub async fn asset_upload(pool: &Pool, name: &str, category_id: i32, file: Vec<u8>, image: Vec<u8>, price: f64, is_disable: bool){
+    let mut conn = pool.get_conn().await?;
     
     // 이미지와 파일을 Files와 Images 테이블에 저장
     let image_id: i32 = conn.exec_map(
@@ -46,7 +41,7 @@ pub async fn upload_asset(pool: &Pool, name: &str, category_id: i32, file: Vec<u
             "image_id" => image_id,
             "file_id" => file_id,
             "thumbnail" => thumbnail_data,
-            "upload_date" => SystemTime::now(),
+            "upload_date" => SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?.as_secs(),
             "price" => price,
             "is_disable" => is_disable,
         },
@@ -56,13 +51,13 @@ pub async fn upload_asset(pool: &Pool, name: &str, category_id: i32, file: Vec<u
 }
 
 
-
+/*
 // 카테고리 ID와 검색어를 사용한 에셋 정보와 썸네일 조회
 pub async fn get_assets_by_category_and_search(
     pool: &Pool, 
     category_id: Option<i32>, // 카테고리 선택은 선택적으로 만듭니다.
     search_query: Option<String>, // 검색어도 선택적입니다.
-) -> Result<Vec<(i32, String, Option<Vec<u8>>)>, AppError> {
+) -> Result<Vec<(i32, String, Option<Vec<u8>>)>> {
     let mut conn = pool.get_conn().await.map_err(AppError::DbError)?;
 
     // 동적 쿼리 구성
@@ -93,7 +88,7 @@ pub async fn get_assets_by_category_and_search(
 
     Ok(assets_with_thumbnails)
 }
-
+*/
 
 
 
