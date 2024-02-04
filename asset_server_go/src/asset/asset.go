@@ -73,6 +73,8 @@ func AssetData(name string, data []byte) {
 			log.Fatalf("Failed to insert data: %v", err)
 		}
 
+		// id:~~ name:~~ image(/ ~ byte고민)
+
 		// client에게 id와 성공 메시지 반환
 		var asset_id int = 0
 		err = db.QueryRow("SELECT LAST_INSERT_ID();").Scan(&asset_id)
@@ -90,6 +92,10 @@ func AssetData(name string, data []byte) {
 	case "file":
 		connect = fmt.Sprintf("Connected to %s table", trim_name)
 		fmt.Printf(connect)
+
+	// case "search":
+	// 	if ~~ (id-category?, name) - (name : 상의)
+	// 		- id, /. 뒤에 아무 것도 없으면 null처리 (if)
 
 	// 그 외
 	default:
