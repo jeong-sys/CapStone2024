@@ -27,7 +27,7 @@ func main() {
 			log.Printf("클라이언트 연결 : %v", conn.RemoteAddr())
 		}
 		defer conn.Close() // 메인 프로세스 종료시 소켓 종료
-		
+
 		tcp.ConnHandler(conn)
 	}
 }

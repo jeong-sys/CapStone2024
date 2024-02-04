@@ -66,7 +66,7 @@ func ConnHandler(conn net.Conn) {
 			// 	_, err = conn.Write(id_data)
 
 			// } else {
-				_, err = conn.Write(data[:n])
+			_, err = conn.Write(data[:n])
 
 			//}
 			// err 처리
