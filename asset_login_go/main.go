@@ -1,48 +1,40 @@
 package main
 
+
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"database/sql"
-	"time"
-
-	"github.com/go-sql-driver/mysql"
-	"github.com/gin-gonic/gin"
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"capstone.com/module/db"
 )
 
-// MySQL
-func GetConnector(DB_name string) *sql.DB{
-	cfg := mysql.Config{
-		User:                 "root",
-		Passwd:               "12345678",
-		Net:                  "http",
-		Addr:                 "localhost:3306",
-		Collation:            "utf8mb4_general_ci",
-		Loc:                  time.UTC,
-		MaxAllowedPacket:     4 << 20.,
-		AllowNativePasswords: true,
-		CheckConnLiveness:    true,
-		DBName:               DB_name,
-	}
-	connector, err := mysql.NewConnector(&cfg)
-	if err != nil {
-		panic(err)
-	}
-	db := sql.OpenDB(connector)
-	return db
+//json 파싱해서 받아온 값 db에 저장하기
+type Info struct{
+	User_ID string
+	User_PW string
+	nickname string
+	email string
 }
 
 
 func main() {
 
-	// MySQL 연결 설정
+	
+
+	r := gin.Default()	
 
 	r.POST("/signup", func(c *gin.Context){
-		// 데이터 저장
+
+
 	})
 
-	r.GET("/login", func(c *gin.Context){
-		// 데이터 조회
-		
-	})
+	router.POST("/signup", signUp)
+	router.GET("/login", login)
+
 }
+
+
+
