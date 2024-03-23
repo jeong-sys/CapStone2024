@@ -1,14 +1,13 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
 	"capstone.com/module/db"
 	"capstone.com/module/hashing"
 	"capstone.com/module/models"
-
-	// db "command-line-argumentsC:\\Users\\sysailab\\capstone\\CapStone2024\\asset_login_go\\db\\connect.go"
 	"github.com/labstack/echo"
 )
 
@@ -24,33 +23,37 @@ func SignUp(c echo.Context) error {
 	db := db.GetConnector()
 	fmt.Println("Connected DB")
 
-	// 이미 아이디 존재할 경우
-	result_id := db.Find(&user, "user_id=?", user.user_id)
-	if result_id.RowsAffected != 0 {
+	// 아이디 존재 여부 확인
+	query_id := "SELECT * FROM users WHERE user_id = " + user.User_id
+	result_id := db.QueryRow(query_id).Scan(&user.User_id)
+	if result_id != sql.ErrNoRows {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "existring id",
+			"message": "existing id",
 		})
 	}
 
-	// 이미 닉네임 존재할 경우
-	result_nick := db.Find(&user, "nickname=?", user.nickname)
-	if result_nick.RowsAffected != 0 {
+	// 닉네임 존재 여부 확인
+	query_nick := "SELECT * FROM users WHERE nickname = " + user.Nickname
+	result_nick := db.QueryRow(query_nick).Scan(&user.Nickname)
+	if result_nick != sql.ErrNoRows {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "existing nickname",
+			"message": "existing id",
 		})
-
 	}
 
 	// 비밀번호 bycrypt 라이브러리 해싱 처리
-	hashpw, err := handler.HashPassword(user.user_pw)
+	hashpw, err := hashing.HashPassword(user.User_pw)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
 		})
 	}
-	user.User_PW = hashpw
+	user.User_pw = hashpw
 
-	if err := db.GetConnector(&user); err.Eror != nil {
+	// 유저 생성
+	query_r := "INSERT INTO users (user_id, user_pw, nickname, email) VALUES (?, ?, ?, ?)"
+	_, err = db.Exec(query_r, user.User_id, user.User_pw, user.Nickname, user.Email)
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Failed SignUp",
 		})
