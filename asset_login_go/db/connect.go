@@ -6,7 +6,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-func GetConnector(DB_name string) *sql.DB {
+func GetConnector() *sql.DB {
 	cfg := mysql.Config{
 		User:                 "root",
 		Passwd:               "12345678",
@@ -17,7 +17,7 @@ func GetConnector(DB_name string) *sql.DB {
 		MaxAllowedPacket:     4 << 20.,
 		AllowNativePasswords: true,
 		CheckConnLiveness:    true,
-		DBName:               DB_name,
+		DBName:               "go_signup",
 	}
 	connector, err := mysql.NewConnector(&cfg)
 	if err != nil {
