@@ -45,6 +45,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.0 // indirect
 	github.com/go-text/typesetting v0.1.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-dap v0.12.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect

@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 
 	"capstone.com/module/db"
@@ -23,25 +24,28 @@ func SignUp(c echo.Context) error {
 	db := db.GetConnector()
 	fmt.Println("Connected DB")
 
-	// 아이디 존재 여부 확인
-	query_id := "SELECT * FROM users WHERE user_id = " + user.User_id
+	// 아이디 존재 여부 확인(아이디 중복 방지를 위함)
+	query_id := fmt.Sprintf("SELECT * FROM users WHERE user_id ='%s';", user.User_id)
+	fmt.Println(query_id)
+	// _, err := db.Exec(query_id) // Exec는 insert, update, delete하기 위해 사용
 	result_id := db.QueryRow(query_id).Scan(&user.User_id)
 	if result_id != sql.ErrNoRows {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "existing id",
+			"message": "existing nickname",
 		})
 	}
 
 	// 닉네임 존재 여부 확인
-	query_nick := "SELECT * FROM users WHERE nickname = " + user.Nickname
+	query_nick := fmt.Sprintf("SELECT * FROM users WHERE nickname ='%s';", user.Nickname)
+	fmt.Println(query_nick)
 	result_nick := db.QueryRow(query_nick).Scan(&user.Nickname)
 	if result_nick != sql.ErrNoRows {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "existing id",
+			"message": "existing nickname",
 		})
 	}
 
-	// 비밀번호 bycrypt 라이브러리 해싱 처리
+	// 비밀번호 bycrypt 라이브러리 해싱 처리  ---> (무슨 해싱?)
 	hashpw, err := hashing.HashPassword(user.User_pw)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
@@ -52,11 +56,10 @@ func SignUp(c echo.Context) error {
 
 	// 유저 생성
 	query_r := "INSERT INTO users (user_id, user_pw, nickname, email) VALUES (?, ?, ?, ?)"
+	// fmt.Println(query_r)
 	_, err = db.Exec(query_r, user.User_id, user.User_pw, user.Nickname, user.Email)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"message": "Failed SignUp",
-		})
+		log.Fatalf("Failed to insert data: %v", err)
 	}
 
 	// Success
