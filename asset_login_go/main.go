@@ -19,12 +19,6 @@ func main() {
 	e.POST("/signup", handler.SignUp)
 	e.GET("/login", handler.LogIn)
 
-	// 목데이터로 테스트
-	// e.GET("/test", handler.MockData(), md.JWTWithConfig(md.JWTConfig{
-	// 	SigningKey:  []byte(os.Getenv("SECRET_KEY")),
-	// 	TokenLookup: "cookie:access-token",
-	// }))
-
-	e.Logger.Fatal(e.Start(":8000"))
+	e.Logger.Fatal(e.Start("192.168.50.140:8000"))
 
 }

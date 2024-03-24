@@ -31,7 +31,7 @@ func SignUp(c echo.Context) error {
 	result_id := db.QueryRow(query_id).Scan(&user.User_id)
 	if result_id != sql.ErrNoRows {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "existing nickname",
+			"message": "existing id",
 		})
 	}
 
@@ -68,3 +68,4 @@ func SignUp(c echo.Context) error {
 	})
 
 }
+
