@@ -4,11 +4,12 @@ use std::process::Command;
 pub fn setup_namespace() {
     // UTS 네임스페이스 생성
     unshare(CloneFlags::CLONE_NEWUTS).expect("Failed to unshare UTS namespace");
-
-    // `hostname` 명령어를 실행하여 네임스페이스 내의 호스트 이름을 확인
-    let output = Command::new("hostname")
-        .output()
-        .expect("Failed to execute hostname command");
-
-    println!("UTS Namespace Hostname: {}", String::from_utf8_lossy(&output.stdout));
+    // IPC 네임스페이스 생성
+    unshare(CloneFlags::CLONE_NEWIPC).expect("Failed to unshare IPC namespace");
+    // PID 네임스페이스 생성
+    unshare(CloneFlags::CLONE_NEWPID).expect("Failed to unshare PID namespace");
+    // 네트워크 네임스페이스 생성
+    unshare(CloneFlags::CLONE_NEWNET).expect("Failed to unshare NET namespace");
+    // 마운트 네임스페이스 생성
+    unshare(CloneFlags::CLONE_NEWS).expect("Failed to unshare MNT namespace");
 }
